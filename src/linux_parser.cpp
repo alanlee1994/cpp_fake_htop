@@ -78,6 +78,7 @@ float LinuxParser::MemoryUtilization() {
   string key,value,line;
   float totalMemory=0.0;
   float freeMemory=0.0;
+  float default_result  = 0.0;
   std::ifstream stream(kProcDirectory+kMeminfoFilename);
   if (stream.is_open()){
     while (std::getline(stream, line)){
@@ -92,20 +93,20 @@ float LinuxParser::MemoryUtilization() {
     }
     return (totalMemory-freeMemory)/totalMemory;
   }
-  return 0.0;
+  return default_result;
  }
 
 // TODO: Read and return the system uptime
 long LinuxParser::UpTime() {
-  string uptime, line;
+  string ut, line;
   std::ifstream stream(kProcDirectory+kUptimeFilename);
   if (stream.is_open()){
      std::getline(stream, line);
     std::istringstream linestream(line);
-    linestream >> uptime;
-    return stol(uptime);
+    linestream >> ut;
+    return stol(ut);
   }
-  return 0.0;
+  return 0;
 }
 
 // TODO: Read and return the number of jiffies for the system
@@ -129,7 +130,7 @@ long LinuxParser::ActiveJiffies(int pid) {
     std::istringstream linestream(line);
     int count=0;
     while(linestream >>value){
-      if (count >= 13 && count <=16){
+      if (count > 12 && count <17){
         active_jiffles += stol(value);
       }
       count += 1;
@@ -287,7 +288,7 @@ long LinuxParser::UpTime(int pid) {
       if (i == 21) {
         return stol(value) / sysconf(_SC_CLK_TCK);
       }
-      i++;
+      i+=1;
     }
   }
   return 0;
